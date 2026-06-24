@@ -2,7 +2,9 @@
    Café CONEXÃO — Vanilla JS
    ============================================ */
 (() => {
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
   /* ---------- Header sticky shrink ---------- */
   const header = document.getElementById("site-header");
@@ -27,7 +29,7 @@
       navToggle.setAttribute("aria-expanded", "false");
       mobileNav.hidden = true;
       mobileNav.dataset.open = "false";
-    })
+    }),
   );
 
   /* ---------- Reveal on scroll + counter ---------- */
@@ -40,7 +42,7 @@
         if (!entry.isIntersecting) return;
         const el = entry.target;
         const siblings = [...(el.parentElement?.children ?? [])].filter((s) =>
-          s.classList.contains("reveal")
+          s.classList.contains("reveal"),
         );
         const localIdx = siblings.indexOf(el);
         el.style.transitionDelay = `${Math.max(0, localIdx) * 80}ms`;
@@ -48,7 +50,7 @@
         io.unobserve(el);
       });
     },
-    { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
   );
   revealEls.forEach((el) => io.observe(el));
 
@@ -71,7 +73,7 @@
         counterIo.unobserve(el);
       });
     },
-    { threshold: 0.5 }
+    { threshold: 0.5 },
   );
   counters.forEach((el) => counterIo.observe(el));
 
@@ -132,7 +134,7 @@
           requestAnimationFrame(update);
         }
       },
-      { passive: true }
+      { passive: true },
     );
   }
 
@@ -234,16 +236,19 @@
       else if (!emailRe.test(String(data.email).trim()))
         errors.email = "E-mail inválido.";
       if (!String(data.subject).trim()) errors.subject = "Informe o assunto.";
-      if (!String(data.message).trim()) errors.message = "Escreva sua mensagem.";
+      if (!String(data.message).trim())
+        errors.message = "Escreva sua mensagem.";
 
       ["name", "email", "subject", "message"].forEach((k) =>
-        setError(k, errors[k] || "")
+        setError(k, errors[k] || ""),
       );
 
       if (Object.keys(errors).length) {
         status.classList.remove("success");
         status.textContent = "Verifique os campos destacados.";
-        const firstInvalid = form.querySelector(".field.invalid input, .field.invalid textarea");
+        const firstInvalid = form.querySelector(
+          ".field.invalid input, .field.invalid textarea",
+        );
         firstInvalid?.focus();
         return;
       }
@@ -266,29 +271,35 @@
 (() => {
   const pre = document.getElementById("preloader");
   const vid = document.getElementById("preloaderVideo");
+
   if (!pre) return;
 
-  let dismissed = false;
-  const dismiss = () => {
-    if (dismissed) return;
-    dismissed = true;
-    pre.classList.add("is-gone");
-    document.body.classList.remove("is-loading");
-    setTimeout(() => pre.remove(), 900);
-  };
+  let closed = false;
 
-  // dismiss on video end
-  vid?.addEventListener("ended", dismiss);
-  // dismiss on any click/tap/key
-  pre.addEventListener("click", dismiss);
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" || e.key === "Enter" || e.key === " ") dismiss();
-  });
-  // safety: if video fails to load
-  vid?.addEventListener("error", dismiss);
-  // hard cap: 12s
-  setTimeout(dismiss, 12000);
+  function closePreloader() {
+    if (closed) return;
+    closed = true;
 
-  // try autoplay (some browsers block until interaction)
+    pre.style.opacity = "0";
+
+    setTimeout(() => {
+      pre.style.display = "none";
+      document.body.classList.remove("is-loading");
+    }, 800);
+  }
+
+  // Clique em qualquer lugar da tela
+  pre.addEventListener("click", closePreloader);
+
+  // Vídeo terminou
+  vid?.addEventListener("ended", closePreloader);
+
+  // Se der erro no vídeo
+  vid?.addEventListener("error", closePreloader);
+
+  // Se o autoplay falhar
   vid?.play?.().catch(() => {});
+
+  // Segurança: fecha sozinho após 5s
+  setTimeout(closePreloader, 5000);
 })();
