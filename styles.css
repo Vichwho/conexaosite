@@ -1028,3 +1028,8 @@ body.is-loading {
 @media (max-width: 600px) {
   .preloader-skip { bottom: 28px; font-size: 0.7rem; }
 }
+
+.preloader {
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
